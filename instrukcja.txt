@@ -1,0 +1,34 @@
+Pierwsze użycie repozytorium:
+
+W odpowiednim folderze:
+git clone https://github.com/Projekt-Zespolowy-2025-SAMSON/SAMSON 
+cd SAMSON
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+git checkout main
+git pull origin main
+########################
+Upewnienie się, że wszystko jest up-to-date
+########################
+
+
+Później każdorazowo jeżeli chcemy pracować nad projektem:
+W folderze projektu:
+git checkout main
+git pull origin main
+git checkout -b twojeZadanie (np. signalProcessing)
+####################################
+Tworzenie własnego branch, żeby nie przeszkadzać sobie nawzajem
+####################################
+
+Praca w własnym folderze (electrodes, signalProcessing, itd.)
+
+git add .
+git commit -m "wiadomosc"
+git push origin twojeZadanie
+
+
+następnie na stronie GitHub pojawi się możliwość stworzenie Pull Request (albo w zakładce <>Code albo w Pull Requests -> New Pull Requests)
+I później albo samodzielnie albo przez mnie merge oba branche. 
+
+
