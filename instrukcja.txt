@@ -32,7 +32,9 @@ następnie na stronie GitHub pojawi się możliwość stworzenie Pull Request (a
 I później albo samodzielnie albo przez mnie merge oba branche. 
 
 na koniec:
-git push origin --delete feature-your-task
+git checkout main
+git branch -d twojeZadanie
+git push origin --delete twojeZadanie
 
 Żeby nie zaśmiecać repozytorium.
 
