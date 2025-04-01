@@ -1,0 +1,28 @@
+---Dane---
+Baza danych do wstępnych testów: (1.04.2025)
+https://physionet.org/content/grabmyo/1.1.0/Session1/session1_participant1/#files-panel
+
+
+Pomiary były podzielone na 3 sesje - 3 dni (Session1/Session2/Session3).
+W każdej sesji było 43 uczestników - 43 podfoldery (Session1/session1_subject1/ ... Session3/session3_subject43/)
+Każdy uczestnik wykonał w sumie 17 różnych gestów, wliczając jako jeden z nich stan spoczynku (gesture1 ... gesture17).
+Każdy gest był powtarzany 7 razy (trial1 ... trial7).
+
+Przykład: session2_participant13_gesture9_trial7.dat == sesja dzień 2., uczestnik 13., gest 9., powtórzenie 7.
+
+Każda próba trwała 5 sekund, a między kolejnymi skurczami zapewniono 10-sekundowy okres odpoczynku, aby zapobiec zmęczeniu mięśni.
+
+Format plików:
+Zapis każdej jednostki pomiarów składa się z dwóch plików: *.hea oraz *.dat.
+Każdy plik .dat zawiera 5-sekundowe nagrania EMG, próbkowane z częstotliwością 2048 Hz.
+Każde nagranie ma 10240 próbek (5 sek * 2048 Hz = 10240).
+
+Liczba kanałów: 32 (układ elektrod na przedramieniu i nadgarstku).
+
+Strefa	        Kanały	                Kolumny (w macierzy 10240×32)
+--------------------------------------------------------
+Przedramię	F1-F8 (pierścień 1)	{1,2,...,8}
+Przedramię	F9-F16 (pierścień 2)	{9,10,...,16}
+Nadgarstek	W1-W6 (pierścień 3)	{18,19,...,23}
+Nadgarstek	W7-W12 (pierścień 4)	{26,27,...,31}
+Nieużywane	U1-U4	                {17,24,25,32}
