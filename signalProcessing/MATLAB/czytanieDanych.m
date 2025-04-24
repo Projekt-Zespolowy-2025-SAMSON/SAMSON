@@ -1,11 +1,6 @@
 filePath = 'Data/session1_participant1_gesture10_trial2.hea';
 
-if exist(filePath, 'file')
-    disp('Plik istnieje.');
-else
-    disp('Plik NIE istnieje! Sprawdź ścieżkę.');
-end
-
+checkFile(filePath);
 
 % Załaduj dane z pliku .dat i .hea
 [data, fields] = rdsamp('/Data/session1_participant1_gesture10_trial2.hea', [], 0); 

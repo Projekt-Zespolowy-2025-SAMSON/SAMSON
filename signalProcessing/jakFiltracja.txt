@@ -1,0 +1,28 @@
+average referencing: (odniesienie względem średniej)
+"Averaging is done by calculating the average of all channels at each point of time and subtracting this average from each individual channel."
+Redukcja szumu, który pochodzi z otoczenia, występuje na wszytskich kanałach.
+
+--wyodrębni różnice pomiędzy kanałami
+
+Filters Applied
+Band-pass filter(20-450Hz), Notch filter(odrzucić 50Hz), and High-pass filter
+
+--wyższe częstotliwości zazwyczaj dla szybkich i silnych skurczy mięśni
+--zakres częstotliwości będzie różny dla różnych gestów
+
+--dolne częstotliowści odcinamy, żeby pozbyć się składowej stałej
+
+Po filtracji DWT (dyskretna transformata falkowa) lepsza dla sygnałów niestacjonarnych, lokalizacka czasowa i częstotliowściowa, dzieli sygnał na różne poziomy
+Wavelat Toolbox
+
+
+ Mean Absolute Value (MAV) średnia wartość bezwzględna
+ Waveform Length (WL) długość fali --suma różnic wartości pomiędzy kolejnymi próbkami
+Zero Crossing (ZC)
+Slope Sign Change (SSC) nachylenie sygnału i sprawdzanie ile razy  wystepuje zmiana znaku pomiedzy tymi nachyleniami
+Root Mean Square (RMS) miara energii sygnału
+Energy of Wavelet Coefficients (EWLs) mierzy energię sygnału w różnych pasmach częstotliwości po zastosowaniu transformacji falkowej (DWT)
+Enhanced Mean Absolute Value (EMAV) modyfikacja MAV, która może obejmować dodatkowe elementy, takie jak skalowanie lub uśrednianie z określonymi wagami, aby lepiej odzwierciedlić cechy sygnału.
+
+
+Metody PCA i LDA redukcja cech z myślą o przyszłej klasyfikacji

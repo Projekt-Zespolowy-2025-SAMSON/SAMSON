@@ -1,0 +1,6 @@
+1. wcztaj data z pliku
+2. average referencing
+3.bandpass oraz notch
+4. cechy z czasu
+5.cechy z WT
+6.zapis do pliku 
