@@ -1,11 +1,17 @@
 1. Czym są skale w transformacji falkowej? Jak je dobierać? Porobić eksperymenty
-2. Sprawdzić jeszcze inne rodzaje filtrów i wybrać najlepszy.
+2. Sprawdzić jeszcze inne rodzaje filtrów i wybrać najlepszy. Wygenerować charakterystykę filtru 
 3. Dekompozycja sygnału na poziomy? DWT lub CWT
 4. Normalizacja
 
 5.RES index, fala Daubechies, różne cechy z różnych falek (chat średnia energia pasma CWT)
 6. FR normlaizacja??? czyli względemmax mocy 
-podejrzane wyniki!!!
+7.  dopisać bibliotekę która była dodana do filtru (chociaż chyba nei jest używana już ?!)
+8.PSR %320,240,160,120 ??czy to ma związek z przenoszeniem się 60Hz?? jak wybrać f0??
+
+9.PSR i MDF mogą okno hamminga, czy warto?? I czy usuwać stałą
+10.WL i AAC spoczynek 10 razy mniej niż ruch/gest
+
+
 Artykuł EEE-2012
 
 Wybór cech sEMG oparto na wskaźniku statystycznym, ponieważ wyniki oceny oparte na klasyfikatorze zależą od typu używanego klasyfikatora.
