@@ -1,16 +1,11 @@
-filename = 'features.csv';
-fileDataPath = 'Data/session1_participant34/session1_participant34_gesture17_trial2.hea';
-%fileDataPath ='C:/users/ppaul/Desktop/MatlabEMG/gesture-recognition-and-biometrics-electromyogram-grabmyo-1.1.0/Session1/session1_participant9/session1_participant9_gesture3_trial2.hea';
-
-%fileDataPath ='C:\users\ppaul\Desktop\MatlabEMG\gesture-recognition-and-biometrics-electromyogram-grabmyo-1.1.0\Session1\session1_participant9\session1_participant9_gesture3_trial2.hea';
-fileTEST = constructFilePath(1,21,3,4)
-checkFile(fileTEST);
+filename = 'features1.csv';
+fileDataPath= constructFilePath(1,21,17,6);
 
 %SPRAWDZENIE ŚCIEŻKI PLIKU
 checkFile(fileDataPath);
 
 %WYBÓR KANAŁÓW
-channels_to_process=1:4;
+channels_to_process=1:32;
 ch_num = length(channels_to_process);
 
 %CZYTANIE DANYCH 
@@ -20,22 +15,67 @@ ch_num = length(channels_to_process);
 if ch_num~=1
 aver_ref=average_referencing(data,ch_num,0);
 end
-filtered_data=filters_f(aver_ref,ch_num,sampling_frequency,[5 450],60,0);
+filtered_data=filters_f(aver_ref,ch_num,sampling_frequency,[10 450],60,0);
 
 %NAGŁÓWKI DO KOLUMN W PLIKU
-headers = {'Sample','FR', 'MAV','RMS', 'IEMG','ZC', 'PP'};
+headers = {'Sample','FR', 'PSR','MDF','MNF','DASDV', 'WL','AAC','MAV','RMS', 'IEMG','ZC', 'PP'};
 
 
 %%% RAW DATA %%%
 
     %FR Frequency Ratio
-    
     fr_col = zeros(ch_num,1);
     for i = 1:ch_num
-    fr_col(i)=compute_FR(filtered_data(:,i),sampling_frequency,[20 50], [100 300],0);
+        fr_col(i)=compute_FR(filtered_data(:,i),sampling_frequency,[10 60], [150 350],0);
     end
 
+    %PSR Power spectrum ratio
+    psr_col = zeros(ch_num,1);
+    for i =1:ch_num
+        psr_col(i)=compute_PSR(filtered_data(:,i),sampling_frequency,120,20,0); %320,240,160,120 ??czy to ma związek z przenoszeniem się 60Hz??
+    end
 
+    %MDF Median Frequency
+    mdf_col = zeros(ch_num,1);
+    for i =1:ch_num
+        mdf_col(i)=compute_MDF(filtered_data(:,i),sampling_frequency);
+    end
+
+    %MNF Mean Frequency
+    mnf_col = zeros(ch_num,1);
+    for i = 1:ch_num
+        mnf_col(i)=compute_MNF(filtered_data(:,i),sampling_frequency);
+    end
+
+    %DASDV Difference Absolute Standard Deviation Value
+    dasdv_col = zeros(ch_num,1);
+    for i = 1:ch_num
+        dasdv_col(i)=compute_DASDV(filtered_data(:,i));
+    end
+
+    %WL Waveform Length
+    wl_col = zeros(ch_num,1);
+    for i = 1:ch_num
+        abs_diff = abs(diff(filtered_data(:,i)));
+        wl_col(i) = sum(abs_diff);
+    end
+
+    %AAC Average Amplitude Change
+    aac_col = zeros(ch_num,1);
+    for i = 1:ch_num
+        aac_col(i)=mean(abs(diff(filtered_data(:,i))));
+    end
+
+    
+%%% WAVELET COMPONENT %%%  D1 Db8  %%%
+
+    %MFL 
+
+
+%%% WAVELET COMPONENT %%%  D1 Db5  %%%
+
+    %MYOP
+    
 
     %MAV Mean Absolute Value
 mav_col = zeros(ch_num,1);
@@ -69,8 +109,8 @@ pp_col(i)=sum(max(filtered_data(:,i))-min(filtered_data(:,i)));
 end
 
 %ŁĄCZENIE KOLUMN CECH
-FeatureMatrix=[mav_col,fr_col,rms_col,iemg_col,zc_col,pp_col];
-
+FeatureMatrix=[fr_col,psr_col,mdf_col,mnf_col,dasdv_col, wl_col,aac_col,mav_col,rms_col,iemg_col,zc_col,pp_col];
+size(FeatureMatrix)
 %GENEROWANIE ETYKIET DANYCH - KANAŁY
 Labels = cell(ch_num,1);
 for i = 1:ch_num
