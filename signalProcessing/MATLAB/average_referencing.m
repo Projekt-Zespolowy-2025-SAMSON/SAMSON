@@ -4,6 +4,7 @@ avg_signal = mean(data, 2);
 
 % Odejmij średnią od każdego kanału
 signal_avg_ref = data - avg_signal;
+
 if show
 for i = 1:ch_num
 figure('Position', [0, 200, 1400, 400]);  % [x y szerokość wysokość]

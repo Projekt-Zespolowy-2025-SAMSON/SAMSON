@@ -1,9 +1,10 @@
-function band_energy(waveletTransform, fCWT,sampling_frequency,bands)
+function [mean_energyALL_band]=band_energy(waveletTransform, fCWT,sampling_frequency,bands)
 
 % Inicjalizacja macierzy energii
 energia_pasm = zeros(size(bands,1), size(waveletTransform,2)); 
 % size(A,1) liczba wierszy w A 
 % size(A,2) liczba kolumn w A
+mean_energyALL_band = zeros(size(bands,1), 1);
 
     for i = 1:size(bands,1)
         fstart = bands(i,1);
@@ -11,7 +12,7 @@ energia_pasm = zeros(size(bands,1), size(waveletTransform,2));
         idx = (fCWT >=  fstart) & (fCWT <= fstop);
         oneBand_energy=abs(waveletTransform(idx,:)).^2;
         energia_pasm(i,:) = mean(oneBand_energy, 1);
-        mean_energyALL_band=mean( energia_pasm(i,:))
+        mean_energyALL_band(i)=mean( energia_pasm(i,:));
     end
  % 
    time = (1:size(waveletTransform,2)) / sampling_frequency;

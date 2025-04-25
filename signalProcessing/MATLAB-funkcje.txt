@@ -1,2 +1,0 @@
-//rdsamp
-https://archive.physionet.org/physiotools/matlab/wfdb-app-matlab/html/rdsamp.html  

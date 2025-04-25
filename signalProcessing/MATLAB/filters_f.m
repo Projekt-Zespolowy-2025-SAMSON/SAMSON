@@ -1,9 +1,9 @@
 function [signal_filtered] = filters_f(data,ch_num,sampling_frequency,passband,notch_freq,show)
-
+ signal_filtered = zeros(size(data));
 if show==0
 for i = 1:ch_num
 
-    signal_filtered = zeros(size(data));
+   
 %Filtr pasmowo-przepustowy
 
 fs=sampling_frequency;
@@ -37,7 +37,7 @@ end
 
 
 if show
-signal_filtered = zeros(size(data));
+
 for i = 1:ch_num
 if show
     figure('Position', [0, 200, 1400, 400]);  % [x y szerokość wysokość]
