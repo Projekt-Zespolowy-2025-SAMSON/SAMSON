@@ -1,0 +1,29 @@
+1. Czym są skale w transformacji falkowej? Jak je dobierać? Porobić eksperymenty
+2. Sprawdzić jeszcze inne rodzaje filtrów i wybrać najlepszy.
+3. Dekompozycja sygnału na poziomy? DWT lub CWT
+4. Normalizacja
+
+5.RES index, fala Daubechies, różne cechy z różnych falek (chat średnia energia pasma CWT)
+6. FR normlaizacja??? czyli względemmax mocy 
+podejrzane wyniki!!!
+Artykuł EEE-2012
+
+Wybór cech sEMG oparto na wskaźniku statystycznym, ponieważ wyniki oceny oparte na klasyfikatorze zależą od typu używanego klasyfikatora.
+
+
+Wyjaśnienie:
+Typ I: Sygnały uzyskane z surowego sygnału sEMG. Jest to oryginalny sygnał, który przechodzi przez różne metody przetwarzania.
+
+Typ II: Sygnały uzyskane z współczynników falkowych na różnych poziomach wielorozdzielczości. Na tym etapie używane są różne poziomy dekompozycji sygnału w celu uchwycenia szczegółowych komponentów.
+
+Typ III: Sygnały uzyskane z odbudowanych sygnałów sEMG na różnych poziomach. W tym przypadku sygnał jest rekonstruowany z poszczególnych komponentów w celu odtworzenia oryginalnego sygnału.
+
+Kluczowe pojęcia:
+Komponenty niskiej częstotliwości (cA4, A4): Zawierają główne cechy sygnału i są zwykle uznawane za istotne, ponieważ mają bezpośredni związek z aktywnością mięśni.
+
+Komponenty wysokiej częstotliwości (cD1-cD4, D1-D4): Są bardziej zbliżone do szumów, czyli informacji, które nie mają znaczenia dla analizy sygnału.
+
+Poziomy dekompozycji i rekonstrukcji: W analizie falkowej (DWT) sygnał jest dzielony na różne poziomy (częstotliwościowe). Na niższych poziomach uzyskuje się informacje o ogólnych tendencjach sygnału, a na wyższych – szczegóły.
+
+Podsumowanie:
+W tym badaniu sygnały na pierwszym i drugim poziomie dekompozycji i rekonstrukcji (cD1, cD2, D1, D2) zostały uznane za najbardziej użyteczne, ponieważ są najbardziej zbliżone do oryginalnego sygnału sEMG, podczas gdy komponenty niskiej częstotliwości zawierają więcej nieistotnych danych.

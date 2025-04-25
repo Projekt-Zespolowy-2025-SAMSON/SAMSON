@@ -1,4 +1,4 @@
-function max_Frequency_WT(waveletTransform,fWT,sampling_frequency)
+function max_Frequency_WT(waveletTransform,fWT,sampling_frequency,show)
 % Oblicz amplitudę (moduł) współczynników CWT
 amplituda = abs(waveletTransform);
 
@@ -13,10 +13,12 @@ f_max = fWT(idx_max);  % maksymalna częstotliwość w każdej chwili
 time = (1:length(f_max)) / sampling_frequency;  % czas w sekundach
 
 % Wykres
+if show
+figure;
 plot(time, f_max, '.', 'MarkerSize', 10); 
 xlabel('Czas [s]');
 ylabel('Maksymalna częstotliwość [Hz]');
 title('Maksymalna częstotliwość w czasie (CWT)');
 grid on;
-
+end
 end
