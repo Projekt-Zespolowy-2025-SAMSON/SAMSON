@@ -12,6 +12,14 @@
 10.WL i AAC spoczynek 10 razy mniej niż ruch/gest
 
 
+Cecha	Co mierzy?	        Przydatność w EMG
+RMS	Energię sygnału  	Siła skurczu mięśnia
+V2	Ekstremalne zmiany	Wykrywanie artefaktów
+V3	Nieliniowość	        Rzadkie zdarzenia (np. drgania)
+SM2	Rozproszenie sygnału	Stabilność aktywności
+SM3	Asymetrię rozkładu	Nierównomierne pobudzenie
+
+
 Artykuł EEE-2012
 
 Wybór cech sEMG oparto na wskaźniku statystycznym, ponieważ wyniki oceny oparte na klasyfikatorze zależą od typu używanego klasyfikatora.
