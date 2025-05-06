@@ -10,7 +10,6 @@ fs=sampling_frequency;
 [b_band, a_band] = butter(4, passband/(fs/2), 'bandpass'); %rząd filtru
 signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
 
-
 %Filtr wycinający 50Hz lub 60Hz
 
 fs = sampling_frequency;          % Częstotliwość próbkowania [Hz]
@@ -66,6 +65,12 @@ fs=sampling_frequency;
 [b_band, a_band] = butter(4, passband/(fs/2), 'bandpass'); %rząd filtru
 signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
 
+fvtool(b_band, a_band, 'Fs', fs)
+
+figure;
+freqz(b_band, a_band, 4096, fs);
+title(['Charakterystyka filtru pasmowoprzepustowego, kanał ', num2str(i)]);
+
 Y = fft(signal_bandpassed);
 % Oblicz amplitudy i ogranicz do połowy (ze względu na symetrię)
 amplitude = abs(Y(1:floor(N/2)));
@@ -111,7 +116,7 @@ f_high = f0 + bandwidth/2;
 % Projektowanie filtra Butterwortha pasmowozaporowego
 order = 4;          % Rząd filtra
 [b, a] = butter(order, [f_low, f_high]/(fs/2), 'stop');
-
+fvtool(b, a, 'Fs', fs);
 
 filtered=filtfilt(b,a,signal_bandpassed);
 

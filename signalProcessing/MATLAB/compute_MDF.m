@@ -1,11 +1,8 @@
 function [MDF_value] = compute_MDF(data, fs)
-
-    % Oblicz widmo mocy z oknem Hamminga
+     data = data - mean(data);
+    % Oblicz widmo mocy
     N = length(data);
-    %window = hamming(N);
-    %signal_windowed = data .* window;
-    % X = abs(fft(signal_windowed)).^2 / (sum(window.^2));
-    X = abs(fft(data)).^2;
+    X = abs(fft(data)).^2/N;
     f = (0:N-1)*(fs/N);
     
     % Tylko dodatnie częstotliwości
