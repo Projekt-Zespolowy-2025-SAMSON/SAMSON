@@ -1,6 +1,5 @@
 function [sm2_value,sm3_value] = compute_SM2_SM3(data,decomposition_level,wavelet_type)
 
-
 [C, L] = wavedec(data, decomposition_level,  wavelet_type);
 
 % Wyciąganie szczegółów z poziomu 1

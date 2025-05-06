@@ -1,14 +1,11 @@
 function [PSR_value] = compute_PSR(data, fs, f_center, bandwidth, show)
-    % signal - sygnał EMG (wektor)
-    % fs - częstotliwość próbkowania [Hz]
-    % f0 - centralna częstotliwość [Hz]
-    % bandwidth - szerokość pasma wokół f0 [Hz]
     
-    % Obliczenie FFT z oknem Hamminga
+    %Usunięcie składowej stałej
+    data = data - mean(data);
+
+    % Obliczenie FFT
     N = length(data);
-   % window = hamming(N);
-    %X = abs(fft(data .* window)).^2 / (sum(window.^2));
-    X=abs(fft(data)).^2;
+    X=abs(fft(data)).^2/N;
     f = (0:N-1)*(fs/N);
     
     % Tylko dodatnie częstotliwości

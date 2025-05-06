@@ -10,6 +10,4 @@ power_spectrum=abs(fft(D2)).^2/N;
 size(f);
 size(power_spectrum);
 sm1_value=sum(f .*power_spectrum)/(sum(power_spectrum));
-size(sm1_value);
-%sm1_value=mean((cD1 - mean(cD1)).^2);
 end
