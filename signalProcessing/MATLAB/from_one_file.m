@@ -1,11 +1,12 @@
-function [] = from_one_file(output_filename,fileDataPath,open_generated_file,use_average_referencing)
+function [] = from_one_file(output_filename,fileDataPath,open_generated_file,use_average_referencing,gesture_id,separated_output)
 
 %SPRAWDZENIE ŚCIEŻKI PLIKU
 checkFile(fileDataPath);
-
 %WYBÓR KANAŁÓW
 channels_to_process=1:32;
+windows_to_process=44:48;
 ch_num = length(channels_to_process);
+win_num=length(windows_to_process);
 
 %CZYTANIE DANYCH 
 [data, sampling_frequency,time] = rdsamp(fileDataPath,channels_to_process);
@@ -15,8 +16,6 @@ ch_num = length(channels_to_process);
 if use_average_referencing && ch_num~=1
     aver_ref=average_referencing(data,ch_num,0);
     filtered_data_all=filters_f(aver_ref,ch_num,sampling_frequency,[10 450],60,0);
-else
-    filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],60,0);
 end
 
 
@@ -32,10 +31,10 @@ N = size(filtered_data_all, 1); % liczba próbek
 %ch_num = size(filtered_data, 2); % liczba kanałów
 % Liczymy liczbę okien
 num_windows = floor((N - window_size) / step_size) + 1;
-row_num=ch_num*num_windows;
+row_num=ch_num*win_num;
 
 %NAGŁÓWKI DO KOLUMN W PLIKU
-headers = {'Sample','FR', 'PSR','MDF','MNF','DASDV', 'WL','AAC', 'MFL', 'MYOP', 'SM2','SM3','V2','V3','RMS', 'LOG', 'SM1','MMAV','VAR','SSI','TTP', 'MNP','MAV','IEMG','WAMP','ZC'};
+headers = {'Channel','Window','FR', 'PSR','MDF','MNF','DASDV', 'WL','AAC', 'MFL', 'MYOP', 'SM2','SM3','V2','V3','RMS', 'LOG', 'SM1','MMAV','VAR','SSI','TTP', 'MNP','MAV','IEMG','WAMP','ZC','GESTURE'};
 
 fr_col = zeros(row_num,1);
 psr_col = zeros(row_num,1);
@@ -62,72 +61,80 @@ mav_col = zeros(row_num,1);
 iemg_col = zeros(row_num,1);
 wamp_col = zeros(row_num,1);
 zc_col = zeros(row_num,1);
+gesture_col = zeros(row_num,1);
 
-for window_idx = 1:num_windows
+for window_idx = windows_to_process
+
     start_idx = (window_idx - 1) * step_size + 1;
     end_idx = start_idx + window_size - 1;
     
     % Wyciąganie danych dla okna
     filtered_data = filtered_data_all(start_idx:end_idx, :);
 
+ %GESTURE ID
+    for i = 1:ch_num
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
+        gesture_col(idx)=gesture_id;
+    end
+
 
 %%% RAW DATA %%%
 
     %FR Frequency Ratio
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         fr_col(idx)=compute_FR(filtered_data(:,i),sampling_frequency,[10 60], [150 350],0);
     end
 
     %PSR Power spectrum ratio
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         psr_col(idx)=compute_PSR(filtered_data(:,i),sampling_frequency,120,20,0); %320,240,160,120 ??czy to ma związek z przenoszeniem się 60Hz??
     end
 
     %MDF Median Frequency
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         mdf_col(idx)=compute_MDF(filtered_data(:,i),sampling_frequency);
     end
 
     %MNF Mean Frequency
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         mnf_col(idx)=compute_MNF(filtered_data(:,i),sampling_frequency);
     end
 
     %DASDV Difference Absolute Standard Deviation Value
-   
+
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         dasdv_col(idx)=compute_DASDV(filtered_data(:,i));
     end
 
     %WL Waveform Length
-    
+
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         abs_diff = abs(diff(filtered_data(:,i)));
         wl_col(idx) = sum(abs_diff);
     end
-   
+
 
     %AAC Average Amplitude Change
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         aac_col(idx)=mean(abs(diff(filtered_data(:,i))));
     end
 
-    
+
 %%% WAVELET COMPONENT %%%  D1 Db8  %%%
 
     %MFL Maximum Fractal Length
     decomposition_level=1;
     wavelet_type='db8';
-   
+
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         mfl_col(idx)=compute_MFL(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
@@ -136,9 +143,9 @@ for window_idx = 1:num_windows
     %MYOP Myopulse Percentage Rate
     decomposition_level=1;
     wavelet_type='db5';
-   
+
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         myop_col(idx)=compute_MYOP(filtered_data(:,i),decomposition_level,wavelet_type,0.1);
     end
 
@@ -150,26 +157,26 @@ for window_idx = 1:num_windows
 
     decomposition_level=1;
     wavelet_type='db10';
-    
+
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
        [sm2_col(idx),sm3_col(idx)]=compute_SM2_SM3(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
     %V2 V33 v-Order 2 and 3
-   
+
     wavelet_type='db10';
 
     for i = 1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
        [v2_col(idx),v3_col(idx)]=compute_V2_V3(filtered_data(:,i),wavelet_type);
     end
 
-    
+
     %RMS Root Mean Square
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     rms_col(idx)=compute_RMS(filtered_data(:,i),1,'db10');
     end
 
@@ -178,41 +185,41 @@ for window_idx = 1:num_windows
     decomposition_level=2;
 
     %LOG Log Detector
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     log_col(idx)=compute_LOG(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
     %SM1 1st Spectral Moment
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     sm1_col(idx)=compute_SM1(filtered_data(:,i),decomposition_level,wavelet_type,sampling_frequency);
     end
 
     %MMAV Modified Mean Absolute Value
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     mmav_col(idx)=compute_MMAV(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
     %VAR Variance of EMG
    for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     var_col(idx)=compute_VAR(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
     %SSI Simple Square Integral
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     ssi_col(idx)=compute_SSI(filtered_data(:,i),decomposition_level,wavelet_type);
     end
 
     %TTP Total Power
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
     [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
     D2 = detcoef(C, L, 2);
     ttp_col(idx)=sum(D2.^2);
@@ -220,7 +227,7 @@ for window_idx = 1:num_windows
 
     %MNP Mean Power
      for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
      [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
      D2 = detcoef(C, L, 2);
      D2_normalized = D2 / max(abs(D2));
@@ -232,18 +239,18 @@ for window_idx = 1:num_windows
 
   %MAV Mean Absolute Value
   for i =1:ch_num
-      idx=i+((window_idx-1)*ch_num);
+      idx=i+((window_idx-windows_to_process(1))*ch_num);
       [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
       D2 = detcoef(C, L, 2);
       D2_normalized = D2 / max(abs(D2));
       mav_col(idx)=mean(abs(D2_normalized));
   end
 
-  
+
     %IEMG Integrated EMG
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
         D2 = detcoef(C, L, 2);
         D2_normalized = D2 / max(abs(D2));
@@ -251,9 +258,9 @@ for window_idx = 1:num_windows
     end
 
     %WAMP Willison Amplitude
-  
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
          D2 = detcoef(C, L, 2);
          D2_normalized = D2 / max(abs(D2));
@@ -263,12 +270,12 @@ for window_idx = 1:num_windows
     end
 
     %ZC Zero Crossings
-   
+
     for i =1:ch_num
-        idx=i+((window_idx-1)*ch_num);
+        idx=i+((window_idx-windows_to_process(1))*ch_num);
         [C, L] = wavedec(filtered_data(:,i), decomposition_level, wavelet_type);
          D2 = detcoef(C, L, 2);
-         
+
         zc_col(idx)=sum(D2(1:end-1) .* D2(2:end) < 0);
     end
 
@@ -316,23 +323,35 @@ end
     %Normalizacja MAV
    mav_col = mav_col / max(mav_col);
 
-%GENEROWANIE ETYKIET DANYCH - KANAŁY
-Labels = cell(row_num,1);
 
-for window_idx = 1:num_windows
+%GENEROWANIE ETYKIET DANYCH - KANAŁY
+%Labels = cell(row_num,1);
+
+ChannelCol = zeros(row_num, 1);
+WindowCol = zeros(row_num, 1);
+
+for window_idx = windows_to_process
     for i = 1:ch_num
-        % Naprzemienne przypisanie kanałów (1, 2, 1, 2) dla każdego okna
-        label = sprintf('CH%d W%d', channels_to_process(i), window_idx);
-        Labels{(window_idx-1)*ch_num + i} = label;
+        row = (window_idx - windows_to_process(1)) * ch_num + i;
+        ChannelCol(row) = channels_to_process(i);
+        WindowCol(row) = window_idx;
     end
 end
 
+% for window_idx = 1:num_windows
+%     for i = 1:ch_num
+%         label = sprintf('CH%d W%d', channels_to_process(i), window_idx);
+%         Labels{(window_idx-1)*ch_num + i} = label;
+%     end
+% end
+
 %ŁĄCZENIE KOLUMN CECH
-FeatureMatrix=[fr_col,psr_col,mdf_col,mnf_col,dasdv_col, wl_col,aac_col,mfl_col, myop_col, sm2_col,sm3_col,v2_col,v3_col,rms_col, log_col, sm1_col,mmav_col, var_col,ssi_col, ttp_col, mnp_col, mav_col,iemg_col,wamp_col,zc_col];
+FeatureMatrix=[fr_col,psr_col,mdf_col,mnf_col,dasdv_col, wl_col,aac_col,mfl_col, myop_col, sm2_col,sm3_col,v2_col,v3_col,rms_col, log_col, sm1_col,mmav_col, var_col,ssi_col, ttp_col, mnp_col, mav_col,iemg_col,wamp_col,zc_col,gesture_col];
 
 %ŁĄCZENIE ETYKIET I DANYCH
-FeatureMatrixWithLabels = [Labels,num2cell(FeatureMatrix)];
+FeatureMatrixWithLabels = [num2cell(ChannelCol), num2cell(WindowCol),num2cell(FeatureMatrix)];
 
+if separated_output
 %ZAPIS DO PLIKU CSV (z odpowiednim separatorem)
 %jeśli w excelu nie dzieli się na kolumny to należy zamienić separator np.
 %na ',' lub takie jak jest w systemie
@@ -346,5 +365,18 @@ fprintf('Otwieram plik %s.\n',output_filename);
 winopen(output_filename);  % Automatyczne otwarcie pliku w Excelu dla Windows
 end
 
+else
+    if exist(output_filename, 'file')
+        writecell(FeatureMatrixWithLabels, output_filename, 'Delimiter', ';', 'WriteMode', 'append');
+    else
+        writecell([headers; FeatureMatrixWithLabels], output_filename, 'Delimiter', ';');
+    end
+    fprintf('Dane zostały dopisane do pliku %s.\n', output_filename);
+    if(open_generated_file)
+        %AUTOMATYCZNE OTWORZENIE PLIKU
+        fprintf('Otwieram plik %s.\n',output_filename);
+        winopen(output_filename);  % Automatyczne otwarcie pliku w Excelu dla Windows
+    end
+end
 
 end

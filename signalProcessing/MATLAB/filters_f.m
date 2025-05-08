@@ -1,150 +1,102 @@
 function [signal_filtered] = filters_f(data,ch_num,sampling_frequency,passband,notch_freq,show)
- signal_filtered = zeros(size(data));
-if show==0
-for i = 1:ch_num
-
-   
-%Filtr pasmowo-przepustowy
-
+signal_filtered = zeros(size(data));
 fs=sampling_frequency;
-[b_band, a_band] = butter(4, passband/(fs/2), 'bandpass'); %rząd filtru
-signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
+f0=notch_freq;
 
-%Filtr wycinający 50Hz lub 60Hz
+% Projektowanie filtra Butterwortha pasmowoprzepustowego
+order = 4;          % Rząd filtra
+[b_band, a_band] = butter(4, passband/(fs/2), 'bandpass');
 
-fs = sampling_frequency;          % Częstotliwość próbkowania [Hz]
-f0 = notch_freq;            % Częstotliwość do usunięcia [Hz]
+% Projektowanie filtra Butterwortha pasmowozaporowego - wycinający 50Hz lub 60Hz
 bandwidth = 5;      % Szerokość pasma zaporowego [Hz]
 
-% Zakres częstotliwości do stłumienia
-f_low = f0 - bandwidth/2;
+f_low = f0 - bandwidth/2;   % Zakres częstotliwości do stłumienia
 f_high = f0 + bandwidth/2;
 
-% Projektowanie filtra Butterwortha pasmowozaporowego
-order = 4;          % Rząd filtra
-[b, a] = butter(order, [f_low, f_high]/(fs/2), 'stop');
+[b_notch, a_notch] = butter(order, [f_low, f_high]/(fs/2), 'stop');
 
-filtered=filtfilt(b,a,signal_bandpassed);
-
-signal_filtered(:,i)=filtered;
-
-% Charakterystyka częstotliwościowa
-%freqz(b, a, 4096, fs);
-%title('Filtr Butterwortha pasmowozaporowy 50 Hz');
-end
-end
-
-
-if show
 
 for i = 1:ch_num
-if show
-    figure('Position', [0, 200, 1400, 400]);  % [x y szerokość wysokość]
-end
-N = length(data(:,i));       % długość sygnału
-f = (0:N-1)*(sampling_frequency/N);       % częstotliwości
-Y = fft(data(:,i));          % oblicz FFT
-
-% Oblicz amplitudy i ogranicz do połowy (ze względu na symetrię)
-amplitude = abs(Y(1:floor(N/2)));
-frequency = f(1:floor(N/2));
-
- subplot(1, 3,1); 
-plot(frequency, amplitude)
-xlabel('Częstotliwość (Hz)')
-%xlim([0 500]);
-ylabel('Amplituda')
-title('Widmo sygnału przed filtracją')
-grid on
+    % FILTROWANIE
+    signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
+    filtered=filtfilt(b_notch,a_notch,signal_bandpassed);
+    signal_filtered(:,i)=filtered;
 
 
+    % WIZUALIZACJA
+    if show
+        figure('Position', [0, 200, 1400, 400]);   % [x y szerokość wysokość]
 
-%Filtr pasmowo-przepustowy (10–450 Hz)
-
-fs=sampling_frequency;
-[b_band, a_band] = butter(4, passband/(fs/2), 'bandpass'); %rząd filtru
-signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
-
-fvtool(b_band, a_band, 'Fs', fs)
-
-figure;
-freqz(b_band, a_band, 4096, fs);
-title(['Charakterystyka filtru pasmowoprzepustowego, kanał ', num2str(i)]);
-
-Y = fft(signal_bandpassed);
-% Oblicz amplitudy i ogranicz do połowy (ze względu na symetrię)
-amplitude = abs(Y(1:floor(N/2)));
-frequency = f(1:floor(N/2));
- subplot(1, 3,2); 
-plot(frequency, amplitude)
-xlabel('Częstotliwość (Hz)')
-xlim([0 600]);
-ylabel('Amplituda')
-title('Widmo sygnału po bandpass filtracją')
-grid on
+        N = length(data(:,i));       % długość sygnału
+        f = (0:N-1)*(sampling_frequency/N);       % częstotliwość
 
 
+        % Widmo przed filtracją
+        Y_raw = fft(data(:, i));
+        subplot(1, 3, 1);
+        plot(f(1:floor(N/2)), abs(Y_raw(1:floor(N/2))));
+        xlim([0 600]);
+        xlabel('Częstotliwość (Hz)');
+        ylabel('Amplituda');
+        title('Widmo sygnału przed filtracją');
+        grid on;
 
-%Filtr wycinający 50Hz lub 60Hz
-% 
-% % Parametry filtru wycinającego 50 Hz
-% notch_center = 60;  % Częstotliwość 50 Hz
-% bw = 2;  % Szerokość pasma (można dostosować, np. +/- 1 Hz)
-% % Normalizowanie częstotliwości środkowej
-% notch_center_normalized = notch_center / (sampling_frequency / 2)  % Dzielimy przez częstotliwość Nyquista
-% bw_normalized =bw /(sampling_frequency/2);
-% % Tworzymy filtr wycinający 50 Hz
-% [b, a]  = designNotchPeakIIR('CenterFrequency', notch_center_normalized, 'Bandwidth', bw_normalized);
-% 
-% https://www.mathworks.com/help/dsp/ref/designnotchpeakiir.html
-
-% % Zastosowanie filtru do sygnału
-% signal_filtered = filtfilt(b,a, data(:,1));
-% 
-% % Wizualizacja charakterystyki częstotliwościowej filtru
-% %fvtool(notchFilter);
+% Zaznaczenie granic pasma przepustowego
+hold on;
+line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
+line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
 
 
-fs = sampling_frequency;          % Częstotliwość próbkowania [Hz]
-f0 = notch_freq;            % Częstotliwość do usunięcia [Hz]
-bandwidth = 5;      % Szerokość pasma zaporowego [Hz]
-
-% Zakres częstotliwości do stłumienia
-f_low = f0 - bandwidth/2;
-f_high = f0 + bandwidth/2;
-
-% Projektowanie filtra Butterwortha pasmowozaporowego
-order = 4;          % Rząd filtra
-[b, a] = butter(order, [f_low, f_high]/(fs/2), 'stop');
-fvtool(b, a, 'Fs', fs);
-
-filtered=filtfilt(b,a,signal_bandpassed);
-
-signal_filtered(:,i)=filtered;
+% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
+line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
+hold off;
 
 
-% Charakterystyka częstotliwościowa
-%freqz(b, a, 4096, fs);
-title('Filtr Butterwortha pasmowozaporowy 50 Hz');
+        % Widmo po filtrze pasmowo-przepustowym
+        Y_band = fft(signal_bandpassed);
+        subplot(1, 3, 2);
+        plot(f(1:floor(N/2)), abs(Y_band(1:floor(N/2))));
+        xlim([0 600]);
+        xlabel('Częstotliwość (Hz)');
+        ylabel('Amplituda');
+        title('Po filtrze pasmowo-przepustowym');
+        grid on;
+% Zaznaczenie granic pasma przepustowego
+hold on;
+line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
+line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
 
 
+% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
+line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
+hold off;
+
+        % Widmo po filtrze zaporowym
+
+        Y_filtered = fft(filtered);
+        subplot(1, 3, 3);
+        plot(f(1:floor(N/2)), abs(Y_filtered(1:floor(N/2))));
+        xlim([0 600]);
+        xlabel('Częstotliwość (Hz)');
+        ylabel('Amplituda');
+        title('Po filtrze bandpass i notch');
+        grid on;
+
+        % Zaznaczenie granic pasma przepustowego
+hold on;
+line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
+line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
 
 
-Y = fft(filtered);
-% Oblicz amplitudy i ogranicz do połowy (ze względu na symetrię)
-amplitude = abs(Y(1:floor(N/2)));
-frequency = f(1:floor(N/2));
- subplot(1, 3,3); 
-plot(frequency, amplitude)
-xlabel('Częstotliwość (Hz)')
-xlim([0 600]);
-ylabel('Amplituda')
-title('Widmo sygnału po bandpass i notch')
-grid on
+% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
+line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
+hold off;
 
+        % Charakterystyki filtrów
+        fvtool(b_band, a_band, 'Fs', fs); % pasmowo-przepustowy
+        fvtool(b_notch, a_notch, 'Fs', fs); % zaporowy
 
-
-end
+    end
 
 end
 
