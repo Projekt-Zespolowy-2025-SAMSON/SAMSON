@@ -78,14 +78,19 @@ int __io_putchar(int ch)
 	return ch;
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	printf("in ADC_ConvCpltCallback\n\r");
-    if(hadc->Instance == ADC1){
-    	printf("instance==ADC1\r\n");
-        adc_value = HAL_ADC_GetValue(hadc);
-        adc_flag = 1;
-    }
-}
+//void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+//	printf("in ADC_ConvCpltCallback\n\r");
+//    if(hadc->Instance == ADC1){
+//    	printf("instance==ADC1\r\n");
+//        adc_value = HAL_ADC_GetValue(hadc);
+//        adc_flag = 1;
+//    }
+//}
+
+void process_adc(void);
+uint8_t calculate_crc8(uint8_t *data, uint8_t len);
+uint16_t CRC16(const uint8_t *data, uint16_t length);
+void send_adc_value(uint16_t value);
 
 /* USER CODE END 0 */
 
@@ -153,11 +158,17 @@ Error_Handler();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 //  HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
-  HAL_Delay(1000);
-  if(HAL_ADC_Start_IT(&hadc1) != HAL_OK){
-	  printf("hal_adc_start_it NOTOK\n\r");
+//  HAL_Delay(1000);
+//  if(HAL_ADC_Start_IT(&hadc1) != HAL_OK){
+//	  printf("hal_adc_start_it NOTOK\n\r");
+//  }
+//  printf("in main\n\r");
+
+//  HAL_ADC_Start(&hadc1);
+  if (HAL_ADC_Start_IT(&hadc1) != HAL_OK) {
+      Error_Handler();
   }
-  printf("in main\n\r");
+
 
   /* USER CODE END 2 */
 
@@ -168,10 +179,17 @@ Error_Handler();
 	  HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 	  if(adc_flag==1){
 		  printf("Zmierzono: %ld\n\r", adc_value);
+		  process_adc();
 		  adc_flag=0;
-		  HAL_ADC_Start_IT(&hadc1);
+//		  HAL_ADC_Start_IT(&hadc1);
 	  }
 	  HAL_Delay(1000);
+
+//	  if (HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY) == HAL_OK) {
+//		  uint16_t adc_value = HAL_ADC_GetValue(&hadc1);
+//		  send_adc_value(adc_value);
+////		  HAL_Delay(10);
+//	  }
 
     /* USER CODE END WHILE */
 
@@ -287,7 +305,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -439,6 +457,53 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+  if (hadc->Instance == ADC1) {
+    adc_value = HAL_ADC_GetValue(hadc);
+    adc_flag = 1;
+  }
+}
+
+void process_adc(void) {
+    send_adc_value(adc_value);
+}
+
+void send_adc_value(uint16_t value) {
+    uint8_t frame[5];
+    frame[0] = 0xAA;
+    frame[1] = (value >> 8) & 0xFF;
+    frame[2] = value & 0xFF;
+    uint16_t crc = CRC16(&frame[1], 2);
+    frame[3] = crc & 0xFF;
+    frame[4] = (crc >> 8) & 0xFF;
+    HAL_UART_Transmit(&huart3, frame, 5, HAL_MAX_DELAY);
+}
+
+uint8_t calculate_crc8(uint8_t *data, uint8_t len) {
+    uint8_t crc = 0x00;
+    for (uint8_t i = 0; i < len; i++) {
+        crc ^= data[i];
+        for (uint8_t j = 0; j < 8; j++)
+            crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
+    }
+    return crc;
+}
+
+uint16_t CRC16(const uint8_t *data, uint16_t length) {
+    uint16_t crc = 0xFFFF;
+    for (uint16_t i = 0; i < length; i++) {
+        crc ^= data[i];
+        for (uint8_t j = 0; j < 8; j++) {
+            if (crc & 0x0001) {
+                crc >>= 1;
+                crc ^= 0xA001;
+            } else {
+                crc >>= 1;
+            }
+        }
+    }
+    return crc;
+}
 
 /* USER CODE END 4 */
 
