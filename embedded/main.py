@@ -27,17 +27,6 @@ def crc16(data):
                 crc >>= 1
     return crc
 
-# while True:
-#     if ser.read(1) == b'\xAA':
-#         data = ser.read(4)
-#         if len(data) == 4:
-#             msb, lsb, crc_lsb, crc_msb = data
-#             val = (msb << 8) | lsb
-#             crc_recived = (crc_msb << 8) | crc_lsb
-#             if crc_recived == crc16([msb, lsb]):
-#                 print(f"ADC Value: {val}")
-#             else:
-#                 print("CRC Error!")
 
 time_now = datetime.now().strftime("%d%m%H%M%S")
 start = time.time()
@@ -65,34 +54,3 @@ while True:
         else:
             print("Blad: start_byte lub stop_byte")
 print(f"time:{time.time() - start}    odebrane:{odebrane}")
-
-# import time
-
-# start = time.time()
-# print("hello")
-# end = time.time()
-# print(end - start)
-
-
-# def calculate_crc8(data):
-#     crc = 0
-#     for byte in data:
-#         crc ^= byte
-#         for _ in range(8):
-#             if crc & 0x80:
-#                 crc = (crc << 1) ^ 0x07
-#             else:
-#                 crc <<= 1
-#             crc &= 0xFF
-#     return crc
-
-
-            # crc = crc16(data[1:6])
-            # print(f"crc: {crc},    data[7]: {data[7] | (data[8] << 8)}")
-            # if crc == data[7] | (data[8] << 8):
-            #     ch1 = data[1] | (data[2] << 8)
-            #     ch2 = data[3] | (data[4] << 8)
-            #     ch3 = data[5] | (data[6] << 8)
-            #     print(f"CH1: {ch1}, CH2: {ch2}, CH3: {ch3}")
-            # else:
-            #     print("Blad: CRC")
