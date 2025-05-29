@@ -53,6 +53,7 @@ volatile uint16_t adc_values[3];
 volatile uint32_t prev_press_time;
 volatile GPIO_PinState prev_state;
 volatile uint8_t pressed;
+volatile uint8_t started;
 
 /* USER CODE END PV */
 
@@ -92,6 +93,7 @@ uint16_t calculate_CRC16(const uint8_t *data, uint16_t length) {
 
 void send_adc_value() {
     uint8_t frame[9];
+    uint8_t adc[2];
     frame[0] = 0xAA;
     frame[1] = (adc_values[0] >> 8) & 0xFF;
     frame[2] = adc_values[0] & 0xFF;
@@ -103,13 +105,54 @@ void send_adc_value() {
     crc = calculate_CRC16(&frame[1], 6);
     frame[7] = (crc >> 8) & 0xFF;
     frame[8] = crc & 0xFF;
+//    printf("%d, %d, %d\n\r", adc_values[0], adc_values[1], adc_values[2]);
+    adc[0] = (adc_values[1] >> 8) & 0xFF;
+    adc[1] = adc_values[1] & 0xFF;
+//    HAL_UART_Transmit(&huart2, adc, 2, HAL_MAX_DELAY);
+
     HAL_UART_Transmit(&huart2, frame, 9, HAL_MAX_DELAY);
+}
+
+void send_start_frame(){
+	uint8_t start_frame[9];
+	start_frame[0] = 0xCC;
+	start_frame[1] = start_frame[0];
+	start_frame[2] = start_frame[0];
+	start_frame[3] = start_frame[0];
+	start_frame[4] = start_frame[0];
+	start_frame[5] = start_frame[0];
+	start_frame[6] = start_frame[0];
+	start_frame[7] = start_frame[0];
+	start_frame[8] = start_frame[0];
+	HAL_UART_Transmit(&huart2, start_frame, 9, HAL_MAX_DELAY);
+	pressed++;
+}
+
+void send_end_frame(){
+	uint8_t end_frame[9];
+	end_frame[0] = 0x99;
+	end_frame[1] = end_frame[0];
+	end_frame[2] = end_frame[0];
+	end_frame[3] = end_frame[0];
+	end_frame[4] = end_frame[0];
+	end_frame[5] = end_frame[0];
+	end_frame[6] = end_frame[0];
+	end_frame[7] = end_frame[0];
+	end_frame[8] = end_frame[0];
+	HAL_UART_Transmit(&huart2, end_frame, 9, HAL_MAX_DELAY);
+	pressed=0;
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if (htim == &htim6) {
-	  if(pressed){
+	  if(pressed==1){
+		  send_start_frame();
+	  }
+	  else if(pressed==2){
 		  send_adc_value();
+	  }
+	  else if(pressed==3){
+		  send_end_frame();
 	  }
   }
 }
@@ -157,6 +200,7 @@ int main(void)
   prev_press_time = 0;
   prev_state = GPIO_PIN_SET;
   pressed = 0;
+  started = 1;
 
   /* USER CODE END 2 */
 
@@ -170,7 +214,8 @@ int main(void)
 			  prev_press_time = HAL_GetTick();
 			  prev_state = current_state;
 			  if(current_state == GPIO_PIN_RESET){
-				  pressed = !pressed;
+//				  pressed = !pressed;
+				  if(pressed==0 || pressed==2) pressed++;
 			  }
 		  }
 	  }
@@ -277,11 +322,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.OversamplingMode = ENABLE;
-  hadc1.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_32;
-  hadc1.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_5;
-  hadc1.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
-  hadc1.Init.Oversampling.OversamplingStopReset = ADC_REGOVERSAMPLING_CONTINUED_MODE;
+  hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -345,7 +386,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = TIM6_PRESCALER_2kHz;
+  htim6.Init.Prescaler = TIM6_PRESCALER_1kHz;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = TIM6_PERIOD;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
