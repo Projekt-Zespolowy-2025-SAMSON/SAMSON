@@ -93,8 +93,8 @@ line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstot
 hold off;
 
         % Charakterystyki filtrów
-        fvtool(b_band, a_band, 'Fs', fs); % pasmowo-przepustowy
-        fvtool(b_notch, a_notch, 'Fs', fs); % zaporowy
+        % fvtool(b_band, a_band, 'Fs', fs); % pasmowo-przepustowy
+        % fvtool(b_notch, a_notch, 'Fs', fs); % zaporowy
 
     end
 
