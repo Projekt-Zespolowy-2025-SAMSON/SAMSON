@@ -4,6 +4,7 @@ function [] = from_one_file(output_filename,fileDataPath,open_generated_file,use
 checkFile(fileDataPath);
 %WYBÓR KANAŁÓW
 channels_to_process=1:32;
+%channels_to_process=16;
 windows_to_process=44:48;
 ch_num = length(channels_to_process);
 win_num=length(windows_to_process);
@@ -30,7 +31,7 @@ step_size = round(100 * sampling_frequency / 1000);   % 50 ms = 102 próbki, 100
 N = size(filtered_data_all, 1); % liczba próbek
 %ch_num = size(filtered_data, 2); % liczba kanałów
 % Liczymy liczbę okien
-num_windows = floor((N - window_size) / step_size) + 1;
+num_windows = floor((N - window_size) / step_size) + 1
 row_num=ch_num*win_num;
 
 %NAGŁÓWKI DO KOLUMN W PLIKU
