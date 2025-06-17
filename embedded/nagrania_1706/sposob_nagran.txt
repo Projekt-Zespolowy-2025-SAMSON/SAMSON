@@ -1,0 +1,4 @@
+Przeprowadzono 3 próby po 4 gesty (kolejność: REST, WF, WE, FS) na jednej osobie. Każdy z gestów z założenia miał trwać około 3 sekundy, a pomiędzy gestami zapewniono kilkusekundową przerwę. Elektrodę na przedramieniu zabezpieczała zawsze co najmniej jedna oapska.
+Próba 1. -- jedna z sond prawdopodobnie nie dotykała skóry.
+Próba 2. -- założono dodatkową opaskę.
+Próba 3. -- dodatkowo dociskano opaski ręcznie.
