@@ -33,13 +33,25 @@ for i = 1:ch_num
 
         % Widmo przed filtracją
         Y_raw = fft(data(:, i));
+        amplitude_spectrum_raw = abs(Y_raw(1:floor(N/2)));
         subplot(1, 3, 1);
-        plot(f(1:floor(N/2)), abs(Y_raw(1:floor(N/2))));
+        plot(f(1:floor(N/2)),amplitude_spectrum_raw  );
         xlim([0 600]);
+        ylim([0 30000]);
+
         xlabel('Częstotliwość (Hz)');
         ylabel('Amplituda');
         title('Widmo sygnału przed filtracją');
         grid on;
+
+        % Znajdź maksymalną amplitudę i jej indeks
+[max_amplitude_raw, max_idx_raw] = max(amplitude_spectrum_raw);
+
+% Odczytaj częstotliwość odpowiadającą temu indeksowi
+frequency_at_max_peak_raw = f(max_idx_raw);
+
+% Wypisz wynik w konsoli
+fprintf('Największy pik w widmie przed filtracją znajduje się na częstotliwości: %.2f Hz\n', frequency_at_max_peak_raw);
 
 % Zaznaczenie granic pasma przepustowego
 hold on;
