@@ -10,15 +10,48 @@
 
 %files={'EMG_2205132543'};
 
-files={'EMG2_2205154110'};
+%files={'EMG2_2205154110'};
 
-folderPath = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/sygnaly/';
+%files={'EMG_1706115729'};
+
+%folderPath = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/sygnaly/';
+
+
+% 
+% folderPath = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane17_06/proba1/';
+% files={'EMG_1706115729'
+%        'EMG_1706115747'
+%        'EMG_1706115805'
+%        'EMG_1706115815'
+% };
+
+
+% folderPath = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane17_06/proba2/';
+% files={'EMG_1706120530'
+%        'EMG_1706120547'
+%        'EMG_1706120603'
+%        'EMG_1706120621'
+% };
+
+
+folderPath = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane17_06/proba3/';
+files={'EMG_1706120835'
+       'EMG_1706121426'
+       'EMG_1706121615'
+       'EMG_1706121647'
+};
+
+
+
+
+
 
 % Parametry filtracji
 ch_num = 1;
 fs = 2000;
-passband = [10 450];
-notch_freq = 50;
+passband = [10 350];
+notch_freqs = [50, 100, 150, 200, 250, 300];
+%notch_freq = 50;
 show = 1;
 
 channels_num=1;
@@ -49,7 +82,7 @@ for i = 1:length(files)
         else
             raw_signal=data;
         end
-        filtered_data = filters_f(data, channels_num, fs, passband, notch_freq, show);
+        filtered_data = filters_f(data, channels_num, fs, passband, notch_freqs, show);
 
         for ch = 1:channels_num  % dla każdego z 3 kanałów
             

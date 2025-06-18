@@ -1,68 +1,64 @@
-function [signal_filtered] = filters_f(data,ch_num,sampling_frequency,passband,notch_freq,show)
+function [signal_filtered] = filters_f(data, ch_num, sampling_frequency, passband, notch_freqs, show)
 signal_filtered = zeros(size(data));
-fs=sampling_frequency;
-f0=notch_freq;
+fs = sampling_frequency;
 
-% Projektowanie filtra Butterwortha pasmowoprzepustowego
-order = 4;          % Rząd filtra
-[b_band, a_band] = butter(4, passband/(fs/2), 'bandpass');
+outputFolder = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Figures/17_06/part3/';
+% Parametry filtrów
+order = 4;               % Rząd filtra
+bandwidth = 7;           % Szerokość pasma zaporowego [Hz]
 
-% Projektowanie filtra Butterwortha pasmowozaporowego - wycinający 50Hz lub 60Hz
-bandwidth = 5;      % Szerokość pasma zaporowego [Hz]
+% Filtr pasmowo-przepustowy Butterwortha
+[b_band, a_band] = butter(order, passband/(fs/2), 'bandpass');
 
-f_low = f0 - bandwidth/2;   % Zakres częstotliwości do stłumienia
-f_high = f0 + bandwidth/2;
+% Projektowanie filtrów zaporowych (notch)
+b_notch_all = {};
+a_notch_all = {};
+for nf = notch_freqs
+    f_low = nf - bandwidth/2;
+    f_high = nf + bandwidth/2;
+    [b_notch, a_notch] = butter(order, [f_low, f_high]/(fs/2), 'stop');
+    b_notch_all{end+1} = b_notch;
+    a_notch_all{end+1} = a_notch;
+end
 
-[b_notch, a_notch] = butter(order, [f_low, f_high]/(fs/2), 'stop');
-
-
+% Przetwarzanie każdego kanału
 for i = 1:ch_num
-    % FILTROWANIE
+    % Filtrowanie pasmowo-przepustowe
     signal_bandpassed = filtfilt(b_band, a_band, data(:,i));
-    filtered=filtfilt(b_notch,a_notch,signal_bandpassed);
-    signal_filtered(:,i)=filtered;
 
+    % Kolejne filtrowanie zaporowe dla każdej częstotliwości
+    filtered = signal_bandpassed;
+    for k = 1:length(notch_freqs)
+        filtered = filtfilt(b_notch_all{k}, a_notch_all{k}, filtered);
+    end
+
+    signal_filtered(:,i) = filtered;
 
     % WIZUALIZACJA
     if show
-        figure('Position', [0, 200, 1400, 400]);   % [x y szerokość wysokość]
+        figure('Position', [0, 200, 1400, 400]);
 
-        N = length(data(:,i));       % długość sygnału
-        f = (0:N-1)*(sampling_frequency/N);       % częstotliwość
-
+        N = length(data(:,i));
+        f = (0:N-1)*(fs/N);
 
         % Widmo przed filtracją
         Y_raw = fft(data(:, i));
         amplitude_spectrum_raw = abs(Y_raw(1:floor(N/2)));
         subplot(1, 3, 1);
-        plot(f(1:floor(N/2)),amplitude_spectrum_raw  );
+        plot(f(1:floor(N/2)), amplitude_spectrum_raw);
         xlim([0 600]);
         ylim([0 30000]);
-
         xlabel('Częstotliwość (Hz)');
         ylabel('Amplituda');
         title('Widmo sygnału przed filtracją');
         grid on;
-
-        % Znajdź maksymalną amplitudę i jej indeks
-[max_amplitude_raw, max_idx_raw] = max(amplitude_spectrum_raw);
-
-% Odczytaj częstotliwość odpowiadającą temu indeksowi
-frequency_at_max_peak_raw = f(max_idx_raw);
-
-% Wypisz wynik w konsoli
-fprintf('Największy pik w widmie przed filtracją znajduje się na częstotliwości: %.2f Hz\n', frequency_at_max_peak_raw);
-
-% Zaznaczenie granic pasma przepustowego
-hold on;
-line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
-line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
-
-
-% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
-line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
-hold off;
-
+        hold on;
+        line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--');
+        line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--');
+        for nf = notch_freqs
+            line([nf nf], ylim, 'Color', 'g', 'LineStyle', '--');
+        end
+        hold off;
 
         % Widmo po filtrze pasmowo-przepustowym
         Y_band = fft(signal_bandpassed);
@@ -73,18 +69,15 @@ hold off;
         ylabel('Amplituda');
         title('Po filtrze pasmowo-przepustowym');
         grid on;
-% Zaznaczenie granic pasma przepustowego
-hold on;
-line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
-line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
+        hold on;
+        line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--');
+        line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--');
+        for nf = notch_freqs
+            line([nf nf], ylim, 'Color', 'g', 'LineStyle', '--');
+        end
+        hold off;
 
-
-% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
-line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
-hold off;
-
-        % Widmo po filtrze zaporowym
-
+        % Widmo po wszystkich filtrach
         Y_filtered = fft(filtered);
         subplot(1, 3, 3);
         plot(f(1:floor(N/2)), abs(Y_filtered(1:floor(N/2))));
@@ -93,23 +86,30 @@ hold off;
         ylabel('Amplituda');
         title('Po filtrze bandpass i notch');
         grid on;
+        hold on;
+        line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--');
+        line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--');
+        for nf = notch_freqs
+            line([nf nf], ylim, 'Color', 'g', 'LineStyle', '--');
+        end
+        hold off;
+        % 
+        % figName = fullfile(outputFolder, sprintf('figure_%d.png', i));
+        % saveas(gcf, figName);
 
-        % Zaznaczenie granic pasma przepustowego
-hold on;
-line([passband(1) passband(1)], ylim, 'Color', 'r', 'LineStyle', '--'); % dolna granica pasma
-line([passband(2) passband(2)], ylim, 'Color', 'r', 'LineStyle', '--'); % górna granica pasma
-
-
-% Zaznaczenie częstotliwości wycinanej (np. 50 Hz dla notch)
-line([notch_freq notch_freq], ylim, 'Color', 'g', 'LineStyle', '--'); % Częstotliwość wycinana
-hold off;
-
-        % Charakterystyki filtrów
-        % fvtool(b_band, a_band, 'Fs', fs); % pasmowo-przepustowy
-        % fvtool(b_notch, a_notch, 'Fs', fs); % zaporowy
-
+        % Szukanie wolnej nazwy pliku
+fileIndex = 1;
+while true
+    figName = fullfile(outputFolder, sprintf('figure_%d.png', fileIndex));
+    if ~exist(figName, 'file')
+        break;
     end
+    fileIndex = fileIndex + 1;
+end
 
+% Zapis figury
+saveas(gcf, figName);
+    end
 end
 
 end
