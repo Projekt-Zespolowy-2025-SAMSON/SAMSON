@@ -49,7 +49,7 @@ while True:
                 # print(time_now)
                 with open(f'EMG_{time_now}.txt', 'a') as f:
                     # f.write(f'{ch1};{ch2};{ch3}\n')
-                    f.write(f'{ch2}\n')
+                    f.write(f'{ch1};{ch2}\n')
                 odebrane += 1
             else:
                 print("crc error")
