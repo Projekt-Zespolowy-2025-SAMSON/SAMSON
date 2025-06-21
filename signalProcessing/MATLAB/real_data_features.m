@@ -3,7 +3,7 @@ function [] = from_one_file(output_filename,fileDataPath,open_generated_file,use
 %SPRAWDZENIE ŚCIEŻKI PLIKU
 checkFile(fileDataPath);
 %WYBÓR KANAŁÓW
-channels_to_process=1:1;
+channels_to_process=1:2;
 %channels_to_process=16;
 % windows_to_process=1:19;
 ch_num = length(channels_to_process);
@@ -39,24 +39,24 @@ sampling_frequency = 2000;
 
 
 
-
+notch_freqs = [50, 100, 150, 200, 250, 300];
 
 %FILTROWANIE
 
 if use_average_referencing && ch_num~=1
     aver_ref=average_referencing(data,ch_num,0);
-    filtered_data_all=filters_f(aver_ref,ch_num,sampling_frequency,[10 450],60,0);
+    filtered_data_all=filters_f(aver_ref,ch_num,sampling_frequency,[10 450],notch_freqs,0);
 end
 
 
 
 if ~use_average_referencing
- filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],60,0);
+ filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],notch_freqs,1);
 end
 
 %PODZIAŁ NA OKNA
 window_size = round(200 * sampling_frequency / 1000);   % 200 ms = 410 próbek
-step_size = round(100 * sampling_frequency / 1000);   % 50 ms = 102 próbki, 100ms = 204 próbki
+step_size = round(50 * sampling_frequency / 1000);   % 50 ms = 102 próbki, 100ms = 204 próbki
 N = size(filtered_data_all, 1); % liczba próbek
 %ch_num = size(filtered_data, 2); % liczba kanałów
 % Liczymy liczbę okien
