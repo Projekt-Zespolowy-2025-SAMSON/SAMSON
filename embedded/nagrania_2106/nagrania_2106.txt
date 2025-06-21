@@ -1,0 +1,24 @@
+kolejność pomiarów: rest, wf, we, fs
+elektroda 1 (kanał 1) -- bliżej nadgarstka
+elektroda 2 (kanał 2) -- blizej łokcia
+elektroda 3 -- nie istnieje
+
+stan początkowy: 
+- laptop nie podłączony do prądu
+- ręce gdziekolwiek
+- stopy gdziekolwiek
+
+pierwsza próba: 18:44:00 i kolejne w tej serii oprócz 18:44:04
+zwykle pomiary
+
+druga próba: 18:51:50 i kolejne w tej serii
+stopy na podłodze
+
+trzecia próba: 19:43:34 i kolejne w tej serii
+stopy na podłodze, druga ręka dotyka laptopa, laptop podłączony do prądu
+
+
+
+
+
+
