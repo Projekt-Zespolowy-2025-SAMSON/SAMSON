@@ -2,7 +2,7 @@ function [signal_filtered] = filters_f(data, ch_num, sampling_frequency, passban
 signal_filtered = zeros(size(data));
 fs = sampling_frequency;
 
-outputFolder = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Figures/17_06/part3/';
+outputFolder = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane21_06/Charakterystyki_czestotliwosciowe';
 % Parametry filtrów
 order = 4;               % Rząd filtra
 bandwidth = 7;           % Szerokość pasma zaporowego [Hz]
