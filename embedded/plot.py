@@ -5,7 +5,7 @@ ch1_vals = []
 ch2_vals = []
 x_val = 0
 
-name = 'EMG_2106194427.txt'  
+name = 'EMG_2106200641.txt'  
 
 with open(name, "r") as file:
     for line in file:
