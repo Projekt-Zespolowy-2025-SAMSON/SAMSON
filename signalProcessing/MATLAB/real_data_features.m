@@ -11,7 +11,14 @@ ch_num = length(channels_to_process);
 %CZYTANIE DANYCH 
 
 % Wczytaj dane z pliku tekstowego
+
+max_lines = 1328; % tutaj ustawiasz limit linii
+
 raw_data = readmatrix(fileDataPath, 'Delimiter', ';');
+
+if size(raw_data, 1) > max_lines
+    raw_data = raw_data(1:max_lines, :);
+end
 
 fprintf('Wczytano %d linijek danych z pliku: %s\n', size(raw_data, 1), fileDataPath);
 
@@ -51,29 +58,29 @@ end
 
 
 if ~use_average_referencing
- filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],notch_freqs,1);
+ filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],notch_freqs,0);
 end
 
 
 % WYSWIETLENIE SYGNALU PRZED I PO FILTRACJI (tylko dla pierwszego kanału dla przejrzystości)
-
-channel_to_plot = 1; % wybierz który kanał chcesz pokazać
-time_axis = (0:length(data(:, channel_to_plot)) - 1) / sampling_frequency;
-
-figure('Name','Sygnał przed i po filtracji','NumberTitle','off');
-subplot(2,1,1);
-plot(time_axis, data(:, channel_to_plot));
-title(sprintf('Sygnał oryginalny - kanał %d', channels_to_process(channel_to_plot)));
-xlabel('Czas [s]');
-ylabel('Amplituda');
-grid on;
-
-subplot(2,1,2);
-plot(time_axis, filtered_data_all(:, channel_to_plot));
-title(sprintf('Sygnał po filtracji - kanał %d', channels_to_process(channel_to_plot)));
-xlabel('Czas [s]');
-ylabel('Amplituda');
-grid on;
+% 
+% channel_to_plot = 1; % wybierz który kanał chcesz pokazać
+% time_axis = (0:length(data(:, channel_to_plot)) - 1) / sampling_frequency;
+% 
+% figure('Name','Sygnał przed i po filtracji','NumberTitle','off');
+% subplot(2,1,1);
+% plot(time_axis, data(:, channel_to_plot));
+% title(sprintf('Sygnał oryginalny - kanał %d', channels_to_process(channel_to_plot)));
+% xlabel('Czas [s]');
+% ylabel('Amplituda');
+% grid on;
+% 
+% subplot(2,1,2);
+% plot(time_axis, filtered_data_all(:, channel_to_plot));
+% title(sprintf('Sygnał po filtracji - kanał %d', channels_to_process(channel_to_plot)));
+% xlabel('Czas [s]');
+% ylabel('Amplituda');
+% grid on;
 
 
 %PODZIAŁ NA OKNA
