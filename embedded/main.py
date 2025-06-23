@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 # po podlaczeniu sprawdzic i wpisac port
-ser = serial.Serial('COM7', baudrate=230400, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', baudrate=230400, timeout=1)
 odebrane = 0
 
 def calculate_crc8(data):
@@ -47,9 +47,9 @@ while True:
             if crc_recived == crc_calculated:
                 print(f"adc1: {ch1},   adc2: {ch2},    adc3: {ch3}")
                 # print(time_now)
-                with open(f'EMG_{time_now}.txt', 'a') as f:
+                with open(f'fp/EMG_{time_now}.txt', 'a') as f:
                     # f.write(f'{ch1};{ch2};{ch3}\n')
-                    f.write(f'{ch1};{ch2}\n')
+                    f.write(f'{ch1};{ch2};{ch3}\n')
                 odebrane += 1
             else:
                 print("crc error")
