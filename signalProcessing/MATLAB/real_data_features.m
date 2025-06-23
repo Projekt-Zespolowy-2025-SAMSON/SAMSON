@@ -3,7 +3,7 @@ function [] = from_one_file(output_filename,fileDataPath,open_generated_file,use
 %SPRAWDZENIE ŚCIEŻKI PLIKU
 checkFile(fileDataPath);
 %WYBÓR KANAŁÓW
-channels_to_process=1:2;
+channels_to_process=1:3;
 %channels_to_process=16;
 % windows_to_process=1:19;
 ch_num = length(channels_to_process);
@@ -53,6 +53,28 @@ end
 if ~use_average_referencing
  filtered_data_all=filters_f(data,ch_num,sampling_frequency,[10 450],notch_freqs,1);
 end
+
+
+% WYSWIETLENIE SYGNALU PRZED I PO FILTRACJI (tylko dla pierwszego kanału dla przejrzystości)
+
+channel_to_plot = 1; % wybierz który kanał chcesz pokazać
+time_axis = (0:length(data(:, channel_to_plot)) - 1) / sampling_frequency;
+
+figure('Name','Sygnał przed i po filtracji','NumberTitle','off');
+subplot(2,1,1);
+plot(time_axis, data(:, channel_to_plot));
+title(sprintf('Sygnał oryginalny - kanał %d', channels_to_process(channel_to_plot)));
+xlabel('Czas [s]');
+ylabel('Amplituda');
+grid on;
+
+subplot(2,1,2);
+plot(time_axis, filtered_data_all(:, channel_to_plot));
+title(sprintf('Sygnał po filtracji - kanał %d', channels_to_process(channel_to_plot)));
+xlabel('Czas [s]');
+ylabel('Amplituda');
+grid on;
+
 
 %PODZIAŁ NA OKNA
 window_size = round(200 * sampling_frequency / 1000);   % 200 ms = 410 próbek

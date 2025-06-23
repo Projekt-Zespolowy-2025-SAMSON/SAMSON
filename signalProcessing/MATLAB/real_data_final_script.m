@@ -52,10 +52,17 @@ files4 = {
     'EMG_2106200641'
 };
 
-% ID gestu (liczba całkowita np. 1 dla pięści, 2 dla otwartej dłoni itd.)
-gesture_id = 4; 
 
-file_path = fullfile(folderPath4, [files4{gesture_id} '.txt']);
+ folderPath5 = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane23_06/proba1/';
+files5 = {
+    'EMG_2306095949'
+};
+
+
+% ID gestu (liczba całkowita np. 1 dla pięści, 2 dla otwartej dłoni itd.)
+gesture_id = 1; 
+
+file_path = fullfile(folderPath5, [files5{gesture_id} '.txt']);
 
 % Ścieżka do pliku danych (zmień na faktyczną ścieżkę)
 %file_path = 'C:/Users/ppaul/ProjektZespołowy/SAMSON/signalProcessing/MATLAB/Data/dane17_06/proba3/EMG_1706121647.txt';
